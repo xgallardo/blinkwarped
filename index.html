@@ -221,14 +221,17 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{const a=KEYMAP[e.code];if(a)kb[a]=false});
 addEventListener('blur',()=>{for(const k in kb)kb[k]=false;if(state==='play')togglePause()});
-const CREDIT_URL='https://www.behance.net/chalogallardo';
-function openCredit(){try{window.open(CREDIT_URL,'_blank','noopener')}catch(e){}}
+const CREDIT_URL='https://www.behance.net/chalogallardo',DOBI_URL='http://www.robdobi.com';
+function openCredit(u=CREDIT_URL){try{window.open(u,'_blank','noopener')}catch(e){}}
+// creditos de la pantalla de inicio: zona clickeable de cada linea (en coordenadas del juego)
+function titleLink(x,y){if(state!=='title'||Math.abs(x-W/2)>80)return null;if(y>=243&&y<253)return CREDIT_URL;if(y>=253&&y<264)return DOBI_URL;return null}
 cv.addEventListener('pointermove',e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
-  cv.style.cursor=((state==='title'&&y>=246&&y<=262&&Math.abs(x-W/2)<110)||(state==='credit'&&y>=150&&y<=176))?'pointer':''});
+  cv.style.cursor=(titleLink(x,y)||(state==='credit'&&y>=150&&y<=176))?'pointer':''});
 cv.addEventListener('pointerdown',e=>{
   audio();
   const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*H;
-  if((state==='title'&&y>=246&&y<=262&&Math.abs(x-W/2)<110)||(state==='credit'&&y>=150&&y<=176)){openCredit();return}
+  const tl=titleLink(x,y);if(tl){openCredit(tl);return}
+  if(state==='credit'&&y>=150&&y<=176){openCredit();return}
   if(state==='credit'){state='title';return}
   if(state==='select'){const i=Math.floor(x/(W/3));if(y>40&&i>=0&&i<3){if(i===selIdx)latch.start=true;else{selIdx=i;sfx('sel')}}return}
   latch.start=true;
@@ -793,7 +796,8 @@ function render(){
     if((frame>>5)&1)txt('PRESS ENTER OR A TO START',W/2,196,'#f2f2f2',8,'center');
     txt('H  HOW TO PLAY',W/2,216,'#ffd24f',6,'center');
     txt('HIGH SCORE '+String(hi).padStart(7,'0'),W/2,234,'#9a9a9a',6,'center');
-    txt('A GAME BY CHALO GALLARDO',W/2,251,'#ff4fa3',6,'center');R(W/2-72,259,144,1,'#ff4fa3');
+    txt('A GAME BY CHALO GALLARDO',W/2,245,'#ff4fa3',5,'center');R(W/2-60,251,120,1,'#ff4fa3');
+    txt('ENEMIES BY ROB DOBI',W/2,255,'#4fd1ff',5,'center');R(W/2-48,261,96,1,'#4fd1ff');
   }else if(state==='select')drawSelect();
   else if(state==='howto')drawHowto();
   else if(state==='gameover'){
